@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Optimización de Rutas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="{{ url_for('home') }}" class="btn-back" style="text-decoration: none; display: inline-block;">
+            <i class="fa-solid fa-house"></i> Volver a Inicio
+        </a>
+    </div>
+    <div class="container">
+        <div class="tabs-container">
+            <div class="tab active" onclick="openTab('info', this)">
+                <i class="fa-solid fa-circle-info"></i> Información
+            </div>
+            <div class="tab" onclick="openTab('select', this)">
+                <i class="fa-solid fa-route"></i> Seleccionar Ruta
+            </div>
+            <div class="tab" onclick="openTab('opt', this)">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Optimización
+            </div>
+        </div>
+
+        <div id="info" class="tab-content active-content">
+            <h2 class="section-title">Especificaciones del Sistema</h2>
+            <p class="section-subtitle">Parámetros de inicialización, origen de datos y metodología algorítmica.</p>
+
+            <div class="stats-grid">
+                <div class="card stat-card">
+                    <div class="icon-box blue-light"><i class="fa-solid fa-database"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Dataset Base</span>
+                        <h3 class="stat-value text-blue">OpenFlights</h3>
+                        <a href="https://openflights.org/data" class="stat-link">Fuente de datos global</a>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="icon-box purple-light"><i class="fa-solid fa-share-nodes"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Nodos (Aeropuertos)</span>
+                        <h3 class="stat-value text-purple">3,090</h3>
+                        <span class="stat-desc">Puntos de conexión activos</span>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="icon-box gray-light"><i class="fa-solid fa-timeline"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Aristas (Rutas)</span>
+                        <h3 class="stat-value text-dark">~31,090</h3>
+                        <span class="stat-desc">Vuelos directos registrados</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="card detail-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-file-code"></i> <h3>Estructura del Grafo</h3>
+                    </div>
+                    <div class="card-body">
+                        <h4>Atributos de Nodo (Aeropuerto):</h4>
+                        <ul>
+                            <li>Identificadores únicos (IATA / ICAO)</li>
+                            <li>Geolocalización precisa (Latitud, Longitud, Altitud)</li>
+                            <li>Datos administrativos (Ciudad, País)</li>
+                        </ul>
+                        
+                        <h4 class="mt-4">Atributos de Arista (Ruta):</h4>
+                        <ul>
+                            <li>Aerolínea operadora y número de escalas</li>
+                            <li>Peso de la arista: Distancia real calculada</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="right-col-stack">
+                    <div class="card feature-card">
+                        <div class="icon-circle purple-circle"><i class="fa-solid fa-microchip"></i></div>
+                        <div class="feature-content">
+                            <h3>Motor de Optimización (DP + DFS)</h3>
+                            <p>Se emplea <strong>Programación Dinámica</strong> con máscaras de bits para reducir la complejidad factorial del TSP a <em>O(n<sup>2</sup>2<sup>n</sup>)</em>. El recorrido se apoya en algoritmos <strong>DFS</strong> para explorar conexiones.</p>
+                        </div>
+                    </div>
+                    <div class="card feature-card">
+                        <div class="icon-circle teal-circle"><i class="fa-solid fa-calculator"></i></div>
+                        <div class="feature-content">
+                            <h3>Precisión Geodésica (Haversine)</h3>
+                            <p>Las distancias no son euclidianas. Utilizamos la <strong>Fórmula del Haversine</strong> para calcular la distancia del círculo máximo entre dos puntos de una esfera.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div id="select" class="tab-content">
+        <div class="select-grid">
+            <div class="control-panel">
+                <h3>Configurar Ruta</h3>
+                
+                <label for="select-pais">Seleccionar País</label>
+                <select id="select-pais" class="custom-select mb-4">
+                    <option value="" disabled selected>-- Seleccione un país --</option>
+
+                    {% for country in paises %}
+                    <option value="{{ country }}">{{ country }}</option>
+                    {% endfor %}
+
+                </select>
+
+                <label for="select-aeropuerto">Seleccionar Aeropuerto</label>
+                <select id="select-aeropuerto" class="custom-select" disabled>
+                    <option value="" disabled selected>-- Primero seleccione un país --</option>
+                </select>
+
+                <div class="button-group mt-5">
+                    <button class="btn-primary full-width" disabled>
+                        <i class="fa-solid fa-route"></i> Optimizar Ruta
+                    </button>
+                    <button class="btn-icon" disabled>
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+                <p class="helper-text">Selecciona al menos 2 aeropuertos para optimizar</p>
+                <p id="connectivity-status" style="font-weight: bold; margin-top: 10px;">
+                    Esperando selección de aeropuertos...
+                </p>
+            </div>
+
+            <div class="preview-panel">
+                <h3>Vista Previa de Ruta</h3>
+                    <div class="dashed-box map-container">
+                        <!-- Mapa principal -->
+                        <div id="live-map" style="width: 100%; height: 400px;"></div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+        <div id="opt" class="tab-content">
+            <!-- Mapa de optimización -->
+            <div id="opt-map" style="width: 100%; height: 450px; margin-bottom: 30px; border-radius: 12px;"></div>
+
+            <div class="compare-grid">
+                <div class="route-box">
+                    <h3>Ruta Original</h3>
+                    <div class="dashed-box large" id="ruta-original-box">
+                        <p>Selecciona aeropuertos y optimiza para ver la ruta original.</p>
+                    </div>
+                </div>
+                <div class="route-box">
+                    <h3 class="text-green">Ruta Optimizada</h3>
+                    <div class="dashed-box large" id="ruta-optimizada-box">
+                        <p>Optimiza una ruta para ver la versión óptima.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card metrics-card">
+                <h3>Métricas de Optimización</h3>
+                <div class="empty-state" id="metrics-content">
+                    <p>Optimiza una ruta para ver las métricas</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="static/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSPFlights - Optimización de Rutas Aéreas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/css/landing-style.css">
+    
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <main class="container">
+        
+        <section class="hero-section">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-earth-americas"></i>
+                </div>
+            </div>
+            
+            <h1 class="main-title">TSPFlights</h1>
+            <p class="subtitle">Optimización de trayectorias aéreas mediante ciclos hamiltonianos</p>
+
+            
+
+            <a href="{{ url_for('dashboard') }}" class="btn-cta">
+                Iniciar planificación <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </section>
+
+        <section class="stats-row">
+            <div class="stat-item">
+                <h2 class="stat-number">35,000+</h2>
+                <p class="stat-label">Rutas activas</p>
+            </div>
+            <div class="stat-item">
+                <h2 class="stat-number">4.5M</h2>
+                <p class="stat-label">Pasajeros/Año</p>
+            </div>
+            <div class="stat-item">
+                <h2 class="stat-number">2%</h2>
+                <p class="stat-label">Global CO<sub>2</sub></p>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <h2 class="section-header">¿Por qué TSPFlights?</h2>
+
+            <div class="cards-grid">
+                <div class="feature-card">
+                    <div class="icon-box icon-red">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <h3>La Problemática</h3>
+                    <p>
+                        "La aviación comercial genera el <strong>2% del CO<sub>2</sub> mundial</strong>. 
+                        Una planificación ineficiente no solo daña el ambiente, sino que cada minuto extra de vuelo consume hasta 3 litros de combustible, elevando drásticamente los costos operativos de las aerolíneas."
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon-box icon-blue">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h3>Nuestra solución</h3>
+                    <p>
+                        "Implementamos algoritmos de Programación Dinámica y DFS sobre un grafo real de OpenFlights para resolver el <strong>Problema del Agente Viajero (TSP)</strong>. Nuestro sistema calcula la distancia mínima exacta utilizando la Fórmula de Haversine, garantizando un ciclo óptimo donde cada aeropuerto es visitado una sola vez."
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer-note">
+            <div class="note-pill">
+                <span class="dot"></span>
+                Red basada en datos reales de OpenFlights con 3,090 aeropuertos y 31,090 rutas
+            </div>
+        </footer>
+
+    </main>
+    
+    <div class="help-btn">?</div>
+    
+</body>
+</html>
+
+
+
