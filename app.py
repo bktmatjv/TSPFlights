@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 import sqlite3 as sq
 from tsp import build_distance_matrix, solve_tsp_dp
+
 app = Flask(__name__)
 
 @app.route('/')

@@ -75,12 +75,11 @@ function sincronizarOptMap() {
 
     let boundsArr = [];
 
-    // 2. RECREAR MARCADORES (Copiados de la variable global selectedAirports)
+
     selectedAirports.forEach((airport, index) => {
         if (airport.lat && airport.lon) {
             const markerNumber = index + 1;
-            
-            // Reutilizamos el estilo de tu icono rojo
+         
             const customIcon = L.divIcon({
                 html: `
                     <div style="background-color: red; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
@@ -100,8 +99,6 @@ function sincronizarOptMap() {
         }
     });
 
-    // 3. CLONAR RUTAS (Usando las variables GLOBALES)
-    // Es vital que rutaPolylineOriginal no sea null aquí
     if (rutaPolylineOriginal) {
         L.polyline(rutaPolylineOriginal.getLatLngs(), {
             color: '#adb5bd', // gris
@@ -139,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewPanel = document.querySelector('.preview-panel .dashed-box');
 
 
-    let currentCountry = selectPais.value; // País actualmente seleccionado
+    let currentCountry = selectPais.value;
 
     // --- Funciones de Ayuda ---
     
@@ -301,7 +298,6 @@ async function checkConnectivityStatus(airports) {
     const routeIds = airports.map(a => a.id);
     const statusElement = document.getElementById('connectivity-status');
     
-    // El DFS necesita al menos 2 nodos para la verificación
     if (routeIds.length <= 1) {
         statusElement.textContent = `Añade al menos 2 aeropuertos para verificar la conexión.`;
         statusElement.style.color = "gray";
@@ -309,13 +305,13 @@ async function checkConnectivityStatus(airports) {
     }
 
     statusElement.textContent = "Verificando conexión...";
-    statusElement.style.color = "orange"; // Indica que está cargando
+    statusElement.style.color = "orange"; 
 
     try {
         const response = await fetch('/api/conectividad', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ route_ids: routeIds }) // Enviamos la lista de IDs
+            body: JSON.stringify({ route_ids: routeIds })
         });
 
         const result = await response.json();
@@ -323,12 +319,12 @@ async function checkConnectivityStatus(airports) {
         if (response.ok && result.conectado === true) {
             statusElement.textContent = "La red de aeropuertos está alcanzable (Conexa).";
             statusElement.style.color = "green";
-            // Puedes habilitar el botón de optimizar aquí si cumple con el mínimo de 2 y está conectado
+
             // btnOptimizar.disabled = false; 
         } else {
             statusElement.textContent = "Advertencia: La red NO es completamente alcanzable (Hay islas o puntos sin salida).";
             statusElement.style.color = "red";
-            // Si no está conectado, asegúrate de deshabilitar el botón de optimizar
+
             // btnOptimizar.disabled = true; 
         }
     } catch (error) {
@@ -339,7 +335,6 @@ async function checkConnectivityStatus(airports) {
     }
 }
 
-    // Función para agregar aeropuerto al mapa
 function addAirportToMap(airport) {
     fetch(`/api/get_airport_coords?id=${airport.id}`)
         .then(response => response.json())
@@ -407,8 +402,6 @@ function clearCoords() {
     Coords = [];
 }
     
-    // Rellena el selector de aeropuerto con opciones basadas en la lista 'availableAirports'
-    // Excluye los que ya están en 'selectedAirports'
     function populateAirportSelect() {
         selectAeropuerto.innerHTML = ''; 
         
@@ -433,15 +426,13 @@ function clearCoords() {
         selectAeropuerto.disabled = (airportsToAdd.length === 0 && selectedAirports.length > 0) || (availableAirports.length === 0);
     }
 
-    // --- Manejadores de Eventos ---
-    // A. Carga de Aeropuertos al seleccionar País
+
     selectPais.addEventListener('change', async function() {
         const newCountry = this.value;
 
         currentCountry = newCountry; 
         
 
-       // renderSelectedAirports(); 
         updateOptimizationButtons();
         
         selectAeropuerto.innerHTML = '<option value="" disabled selected>Cargando aeropuertos...</option>';
@@ -474,52 +465,44 @@ function clearCoords() {
             selectAeropuerto.innerHTML = '<option value="" disabled selected>Error de carga. Intente de nuevo.</option>';
         }
     });
-    // B. Añadir Aeropuerto a la Ruta 
+
     selectAeropuerto.addEventListener('change', function() {
         const airportId = this.value;
         
-        // 1. Encontrar el objeto aeropuerto completo
         const airportToAdd = availableAirports.find(a => a.id == airportId);
         
-        // 2. Comprobar que existe y no está duplicado antes de añadir
         if (airportToAdd && !selectedAirports.some(a => a.id == airportId)) {
             
             selectedAirports.push(airportToAdd);
             
-            // 3. Resetear el selector y actualizar la lista de opciones
             this.value = ""; 
             
-            populateAirportSelect(); // Rellena el selector excluyendo el que acabamos de añadir
+            populateAirportSelect(); 
             checkConnectivityStatus(selectedAirports);
-            // 4. Actualizar la UI
-           // renderSelectedAirports();
+    
             updateOptimizationButtons();  addAirportToMap(airportToAdd);
         }
     });
     
     
-    // C. Botón de Reseteo (Volver a empezar)
     btnReset.addEventListener('click', function() {
-        // 1. Limpiar lista
+
         selectedAirports = [];
         
-        // 2. Forzar la recarga del selector de aeropuertos
-        // Esto usa la lista 'availableAirports' que ya se cargó para el 'currentCountry'
+
         populateAirportSelect();
             
-            // Limpiar el estado de conectividad al resetear
         document.getElementById('connectivity-status').textContent = "Esperando selección de aeropuertos...";
         document.getElementById('connectivity-status').style.color = "gray";
 
-        // 3. Actualizar la UI
-       // renderSelectedAirports();
+
         updateOptimizationButtons(); clearCoords();
         alert(`Ruta de ${currentCountry} reseteada.`);
     });
 
     // D. Botón de Optimizar (Llamada a la función principal)
     btnOptimizar.addEventListener('click', async function() {
-        // 1. Extraer los códigos IATA de los aeropuertos seleccionados
+
         const routeIds = selectedAirports.map(a => a.id);
         console.log("IDs seleccionados:", routeIds);
         
@@ -529,13 +512,13 @@ function clearCoords() {
         }
 
         try {
-            // 2. Enviar la solicitud POST a Flask
+
             const response = await fetch('/api/optimize_route', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                // 3. Convertir los códigos a formato JSON para el backend
+
                 body: JSON.stringify({ route_ids: routeIds })
             });
 
@@ -547,31 +530,28 @@ function clearCoords() {
                 return;
             }
 
-            // 1) Mostrar rutas en los cuadros de texto
             mostrarRutasEnUI(result);
 
-            // 2) Mostrar métricas
             mostrarMetricasEnUI(result);
 
-            // 3) (Opcional) Dibujar ruta optimizada en el mapa
             if (result.ruta_original && result.ruta_optimizada) {
                 await dibujarRutasEnMapa(result.ruta_original, result.ruta_optimizada);
             }
 
 
-            // Cambiar a la pestaña de Optimización automáticamente (opcional)
+    
             const optTab = document.querySelector('.tab:nth-child(3)');
             if (optTab) {
                 openTab('opt', optTab);
             }
 
             setTimeout(() => {
-            initializeOptMap();      // 1. Asegura que el mapa exista
-            if (optMap) optMap.invalidateSize(); // 2. Arregla el tamaño (evita gris)
+            initializeOptMap();      
+            if (optMap) optMap.invalidateSize(); 
             
-            sincronizarOptMap();     // 3. ¡COPIA TODO AL MAPA DE OPTIMIZACIÓN!
+            sincronizarOptMap();     
             
-        }, 300); // 300ms es un tiempo seguro
+        }, 300); 
 
         } catch (error) {
             console.error('Error al enviar la ruta para optimizar:', error);
@@ -582,11 +562,9 @@ function clearCoords() {
    
 });
 
-// --- Variables globales de mapa de optimización ---
 let optMap = null;
 let optPolyline = null;
 
-// --- Inicialización del mapa de optimización ---
 function initializeOptMap() {
     if (optMap) {
         optMap.invalidateSize();

@@ -2,9 +2,6 @@
 import sqlite3
 from math import radians, sin, cos, sqrt, asin
 
-# ==========================
-#  FUNCION HAVERSINE (ÚTIL)
-# ==========================
 # Esta función sí se usa en el TSP y en cálculos de distancia.
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371  # km
@@ -16,11 +13,6 @@ def haversine(lat1, lon1, lat2, lon2):
     )
     return 2 * R * asin(sqrt(a))
 
-
-# =======================================================
-#  CLASES (no son necesarias para TSP pero sí para futuro)
-#  Quedan porque pueden servirte si quieres usar grafo real.
-# =======================================================
 
 class Aeropuerto:
     def __init__(self, airport_id, name, city, country, lat, lon):
