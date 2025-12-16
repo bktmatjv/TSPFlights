@@ -87,7 +87,7 @@ The project uses the OpenFlights dataset, which contains real-world aviation dat
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/TSPFlights.git
+   git clone https://github.com/bogosorts-team/TSPFlights.git
    ```
 2. Install dependencies:
 
